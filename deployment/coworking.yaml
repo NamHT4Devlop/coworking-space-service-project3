@@ -3,12 +3,11 @@ kind: Service
 metadata:
   name: coworking
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   selector:
     service: coworking
   ports:
-  - name: "5153"
-    protocol: TCP
+  - protocol: TCP
     port: 5153
     targetPort: 5153
 ---
