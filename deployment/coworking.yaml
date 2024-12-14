@@ -30,7 +30,7 @@ spec:
     spec:
       containers:
       - name: coworking
-        image: <DOCKER_IMAGE_URI_FROM_ECR>
+        image: 346946764836.dkr.ecr.us-east-1.amazonaws.com/namht4-repo:3
         imagePullPolicy: IfNotPresent
         livenessProbe:
           httpGet:
