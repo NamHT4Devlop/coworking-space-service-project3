@@ -29,7 +29,7 @@ spec:
     spec:
       containers:
       - name: coworking
-        image: 346946764836.dkr.ecr.us-east-1.amazonaws.com/namht4-repo:3
+        image: 346946764836.dkr.ecr.us-east-1.amazonaws.com/namht4-repo-github:1
         imagePullPolicy: IfNotPresent
         livenessProbe:
           httpGet:

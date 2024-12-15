@@ -6,7 +6,6 @@ from datetime import datetime, timedelta
 from flask import jsonify
 from sqlalchemy import and_, text
 from random import randint
-from model import Token
 from config import app, db
 
 
@@ -21,12 +20,15 @@ def health_check():
 @app.route("/readiness_check")
 def readiness_check():
     try:
-        count = db.session.query(Token).count()
-    except Exception as e:
-        app.logger.error(e)
-        return "failed", 500
+        # Truy vấn đếm số bản ghi
+        total = db.session.scalar(text("SELECT COUNT(*) FROM tokens"))
+    except Exception as error:
+        app.logger.exception("Error during readiness check")  # Sử dụng .exception để log traceback đầy đủ
+        return {"status": "failed", "error": str(error)}, 500
     else:
-        return "ok"
+        # Trả về trạng thái dựa trên kết quả
+        return {"status": "healthy" if total > 0 else "unhealthy"}, 200
+
 
 
 def get_daily_visits():
