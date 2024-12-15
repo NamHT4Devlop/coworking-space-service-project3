@@ -129,3 +129,42 @@ Please provide up to 3 sentences for each suggestion. Additional content in your
 ### Best Practices
 * Dockerfile uses an appropriate base image for the application being deployed. Complex commands in the Dockerfile include a comment describing what it is doing.
 * The Docker images use semantic versioning with three numbers separated by dots, e.g. `1.2.1` and  versioning is visible in the  screenshot. See [Semantic Versioning](https://semver.org/) for more details.
+
+### setup start project:
+1. Create cluster:
+   1. `eksctl create cluster --name namht4-cluster-1 --region us-east-1 --nodegroup-name namht4-nodes-1 --node-type t3.small --nodes 2 --nodes-min 2 --nodes-max 3
+      `
+   2. `aws eks update-kubeconfig --region us-east-1 --name namht4-cluster-1`
+2. Create ECR: `aws ecr create-repository --repository-name namht4-repo-github --region us-east-1`
+3. install helm bitnami: 
+   1. `helm repo add bitnami https://charts.bitnami.com/bitnami`
+   2. `helm repo update`
+4. install PostgresSQL: `helm install prj3 bitnami/postgresql --set primary.persistence.enabled=false`
+5. Forward port database:
+   1. `kubectl get svc`
+   2. `kubectl port-forward --namespace default svc/namhtpsqlproject3-postgresql 5434:5432 &`
+   3. `export POSTGRES_PASSWORD=$(kubectl get secret --namespace default <SERVICE_NAME>-postgresql -o jsonpath="{.data.postgres-password}" | base64 -d)`
+   4. `echo $POSTGRES_PASSWORD`
+   5. `PGPASSWORD="$POSTGRES_PASSWORD" psql -U postgres -d postgres -h 127.0.0.1 -a -f db/1_create_tables.sql`
+   6. `PGPASSWORD="$POSTGRES_PASSWORD" psql -U postgres -d postgres -h 127.0.0.1 -a -f db/2_seed_users.sql`
+   7. `PGPASSWORD="$POSTGRES_PASSWORD" psql -U postgres -d postgres -h 127.0.0.1 -a -f db/3_seed_tokens.sql`
+6. commit code and Build code
+7. copy image at ERC
+8. deploy project: 
+   1. run: `cd/deployment`
+   2. run: `kubectl apply -f .`
+## Setup CloudWatch
+1. update role EKS cluster:
+    - Go to EKS and copy the role name
+    - run `aws iam attach-role-policy \
+      --role-name eksctl-namht4-cluster-1-nodegroup--NodeInstanceRole-sjIib9wfZJsn \
+      --policy-arn arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy`
+2. create trigger CloudWatch
+  - run `aws eks create-addon --addon-name amazon-cloudwatch-observability --cluster-name namht4-cluster-1`
+
+### **Note: All images related to APIs, logs, and commands are located in the "image" folder.
+1. API user_visits: http://a36e6ad31f6904f1a9bb15b761b39efb-2045902427.us-east-1.elb.amazonaws.com:5153/api/reports/user_visits
+2. API daily_usage: http://a36e6ad31f6904f1a9bb15b761b39efb-2045902427.us-east-1.elb.amazonaws.com:5153/api/reports/daily_usage
+3. API readiness_check: http://a36e6ad31f6904f1a9bb15b761b39efb-2045902427.us-east-1.elb.amazonaws.com:5153/readiness_check
+4. API health_check: http://a36e6ad31f6904f1a9bb15b761b39efb-2045902427.us-east-1.elb.amazonaws.com:5153/health_check
+**
