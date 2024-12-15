@@ -1,16 +1,23 @@
-from dataclasses import dataclass
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.sql import func
-from sqlalchemy import Column, Integer, String, TIMESTAMP
+from sqlalchemy import Column, Integer, TIMESTAMP
 
-Base = declarative_base()
+class BaseMixin:
+    id = Column(Integer, primary_key=True)
+    created_at = Column(TIMESTAMP, nullable=False, default=func.now())
 
-@dataclass
-class Token(Base):
+    @declared_attr
+    def __tablename__(cls):
+        return cls.__name__.lower()
+
+class Token(BaseMixin, Base):
     __tablename__ = 'tokens'
 
-    id: int = Column(Integer, primary_key=True)
-    user_id: int = Column(Integer, nullable=False)
-    token: str = Column(String(6), nullable=False)
-    created_at: str = Column(TIMESTAMP, nullable=False, default=func.now())
-    used_at: str = Column(TIMESTAMP, nullable=True)
+    user_id = Column(Integer, nullable=False)
+    token = Column(String(6), nullable=False)
+    used_at = Column(TIMESTAMP, nullable=True)
+
+    def __repr__(self):
+        return (f"<Token(id={self.id}, user_id={self.user_id}, "
+                f"token='{self.token}', created_at='{self.created_at}', "
+                f"used_at='{self.used_at}')>")
