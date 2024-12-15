@@ -1,20 +1,17 @@
-from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy.orm import registry
 from sqlalchemy.sql import func
-from sqlalchemy import Column, Integer, TIMESTAMP
+from sqlalchemy import Column, Integer, String, TIMESTAMP
 
-class BaseMixin:
-    id = Column(Integer, primary_key=True)
-    created_at = Column(TIMESTAMP, nullable=False, default=func.now())
+mapper_registry = registry()
 
-    @declared_attr
-    def __tablename__(cls):
-        return cls.__name__.lower()
-
-class Token(BaseMixin, Base):
+@mapper_registry.mapped
+class Token:
     __tablename__ = 'tokens'
 
+    id = Column(Integer, primary_key=True)
     user_id = Column(Integer, nullable=False)
     token = Column(String(6), nullable=False)
+    created_at = Column(TIMESTAMP, nullable=False, default=func.now())
     used_at = Column(TIMESTAMP, nullable=True)
 
     def __repr__(self):
