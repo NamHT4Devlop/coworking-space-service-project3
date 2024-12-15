@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 from flask import jsonify
 from sqlalchemy import and_, text
 from random import randint
+from model import Token
 from config import app, db
 
 
@@ -21,17 +22,14 @@ def health_check():
 def readiness_check():
     try:
         # Sử dụng EXISTS để kiểm tra nhanh bảng có dữ liệu không
-        result = db.session.scalar(text("SELECT EXISTS (SELECT 1 FROM tokens)"))
+        count = db.session.query(Token).count()
     except Exception as error:
         # Log chi tiết lỗi để dễ dàng debug
         app.logger.exception("Error during readiness check")
         return {"status": "failed", "error": str(error)}, 500
     else:
         # Trả về trạng thái dựa trên kết quả
-        return {"status": "healthy" if result else "unhealthy"}, 200
-
-
-
+        return {"status": "healthy" if count else "unhealthy"}, 200
 
 def get_daily_visits():
     with app.app_context():
