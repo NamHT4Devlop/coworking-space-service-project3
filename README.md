@@ -153,6 +153,8 @@ Please provide up to 3 sentences for each suggestion. Additional content in your
 8. deploy project: 
    1. run: `cd/deployment`
    2. run: `kubectl apply -f .`
+   3. run export host: `kubectl expose deployment coworking --type=LoadBalancer --name=coworking-ep-new --port=5153 --target-port=5153
+      ` 
 ## Setup CloudWatch
 1. update role EKS cluster:
     - Go to EKS and copy the role name
