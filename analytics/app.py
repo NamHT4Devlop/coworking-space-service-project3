@@ -20,14 +20,16 @@ def health_check():
 @app.route("/readiness_check")
 def readiness_check():
     try:
-        # Truy vấn đếm số bản ghi
-        total = db.session.scalar(text("SELECT COUNT(*) FROM tokens"))
+        # Sử dụng EXISTS để kiểm tra nhanh bảng có dữ liệu không
+        result = db.session.scalar(text("SELECT EXISTS (SELECT 1 FROM tokens)"))
     except Exception as error:
-        app.logger.exception("Error during readiness check")  # Sử dụng .exception để log traceback đầy đủ
+        # Log chi tiết lỗi để dễ dàng debug
+        app.logger.exception("Error during readiness check")
         return {"status": "failed", "error": str(error)}, 500
     else:
         # Trả về trạng thái dựa trên kết quả
-        return {"status": "healthy" if total > 0 else "unhealthy"}, 200
+        return {"status": "healthy" if result else "unhealthy"}, 200
+
 
 
 
