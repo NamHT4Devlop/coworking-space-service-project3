@@ -21,15 +21,12 @@ def health_check():
 @app.route("/readiness_check")
 def readiness_check():
     try:
-        # Sử dụng EXISTS để kiểm tra nhanh bảng có dữ liệu không
         count = db.session.query(Token).count()
-    except Exception as error:
-        # Log chi tiết lỗi để dễ dàng debug
-        app.logger.exception("Error during readiness check")
-        return {"status": "failed", "error": str(error)}, 500
+    except Exception as e:
+        app.logger.error(e)
+        return "failed", 500
     else:
-        # Trả về trạng thái dựa trên kết quả
-        return {"status": "healthy" if count else "unhealthy"}, 200
+        return "ok"
 
 def get_daily_visits():
     with app.app_context():
